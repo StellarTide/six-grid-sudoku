@@ -1,9 +1,8 @@
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback } from "react";
 import { useSudoku } from "./hooks/useSudoku";
 import { SudokuBoard } from "./components/SudokuBoard";
 import { NumberPad } from "./components/NumberPad";
 import { GameToolbar } from "./components/GameToolbar";
-import type { Hint } from "./engine/types";
 
 function App() {
   const {
@@ -17,6 +16,7 @@ function App() {
     canUndo,
     canRedo,
     stats,
+    showCompletionModal,
     validateResult,
     selectCell,
     fillNumber,
@@ -32,32 +32,17 @@ function App() {
     clearCreateBoard,
   } = useSudoku();
 
-  const [lastHint, setLastHint] = useState<Hint | null>(null);
-
-  const handleUndo = useCallback(() => {
-    undo();
-    setLastHint(null);
-  }, [undo]);
-
-  const handleRedo = useCallback(() => {
-    redo();
-    setLastHint(null);
-  }, [redo]);
-
   const handleHint = useCallback(() => {
-    const hint = getHint();
-    setLastHint(hint);
+    return getHint();
   }, [getHint]);
 
   const handleNewGame = useCallback(() => {
     newGame();
-    setLastHint(null);
   }, [newGame]);
 
   const handleDifficultyChange = useCallback(
     (d: "easy" | "medium" | "hard") => {
       newGame(d);
-      setLastHint(null);
     },
     [newGame],
   );
@@ -100,23 +85,23 @@ function App() {
 
       if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
         e.preventDefault();
-        handleUndo();
+        undo();
         return;
       }
 
       if ((e.ctrlKey || e.metaKey) && e.key === "z" && e.shiftKey) {
         e.preventDefault();
-        handleRedo();
+        redo();
         return;
       }
 
       if ((e.ctrlKey || e.metaKey) && e.key === "y") {
         e.preventDefault();
-        handleRedo();
+        redo();
         return;
       }
     },
-    [selectedCell, fillNumber, eraseNumber, selectCell, handleUndo, handleRedo],
+    [selectedCell, fillNumber, eraseNumber, selectCell, undo, redo],
   );
 
   useEffect(() => {
@@ -137,11 +122,11 @@ function App() {
           isCompleted={isCompleted}
           canUndo={canUndo}
           canRedo={canRedo}
-          lastHint={lastHint}
           stats={stats}
           validateResult={validateResult}
-          onUndo={handleUndo}
-          onRedo={handleRedo}
+          showCompletionModal={showCompletionModal}
+          onUndo={undo}
+          onRedo={redo}
           onHint={handleHint}
           onNewGame={handleNewGame}
           onDifficultyChange={handleDifficultyChange}

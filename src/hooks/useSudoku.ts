@@ -106,6 +106,7 @@ export function useSudoku() {
     const saved = loadSave();
     return saved?.isCompleted ?? false;
   });
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [historyVersion, setHistoryVersion] = useState(0);
   const [gameCounted, setGameCounted] = useState(() => {
     const saved = loadSave();
@@ -205,8 +206,8 @@ export function useSudoku() {
       const completed = engine.isCompleted(newBoard);
       setGameState((prev) => ({ ...prev, board: newBoard }));
       setIsCompleted(completed);
-
       if (completed) {
+        setShowCompletionModal(true);
         setStats(bumpStatsCompleted(difficulty));
       }
     },
@@ -310,8 +311,8 @@ export function useSudoku() {
 
     const completed = engine.isCompleted(newBoard);
     setIsCompleted(completed);
-
     if (completed) {
+      setShowCompletionModal(true);
       setStats(bumpStatsCompleted(difficulty));
     }
 
@@ -334,6 +335,7 @@ export function useSudoku() {
       setGameState(createNewGame(d));
       setSelectedCell(null);
       setIsCompleted(false);
+      setShowCompletionModal(false);
       undoStack.current = [];
       redoStack.current = [];
       setHistoryVersion((v) => v + 1);
@@ -424,6 +426,7 @@ export function useSudoku() {
     historyVersion,
     stats,
     validateResult,
+    showCompletionModal,
     selectCell,
     fillNumber,
     eraseNumber,
