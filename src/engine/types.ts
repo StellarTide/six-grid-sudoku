@@ -25,6 +25,12 @@ export interface SaveData {
   isCompleted: boolean;
 }
 
+export type GameMode = "play" | "create";
+
+export interface ValidateResult {
+  solvable: boolean;
+}
+
 export interface GameStats {
   totalPlayed: number;
   totalCompleted: number;

@@ -8,23 +8,39 @@ import {
   Link2,
   CheckCircle2,
   PartyPopper,
+  Pencil,
+  Play,
+  Eraser,
+  CircleCheck,
   Lightbulb as HintIcon,
 } from "lucide-react";
-import type { Difficulty, Hint, GameStats } from "../engine/types";
+import type {
+  Difficulty,
+  Hint,
+  GameStats,
+  GameMode,
+  ValidateResult,
+} from "../engine/types";
 
 interface GameToolbarProps {
+  mode: GameMode;
   difficulty: Difficulty;
   isCompleted: boolean;
   canUndo: boolean;
   canRedo: boolean;
   lastHint: Hint | null;
   stats: GameStats;
+  validateResult: ValidateResult | null;
   onUndo: () => void;
   onRedo: () => void;
   onHint: () => void;
   onNewGame: () => void;
   onDifficultyChange: (d: Difficulty) => void;
   onShare: () => void;
+  onSwitchMode: (m: GameMode) => void;
+  onValidateCreate: () => void;
+  onStartFromCreate: () => void;
+  onClearCreateBoard: () => void;
 }
 
 const DIFFICULTIES: { value: Difficulty; label: string }[] = [
@@ -34,18 +50,24 @@ const DIFFICULTIES: { value: Difficulty; label: string }[] = [
 ];
 
 export function GameToolbar({
+  mode,
   difficulty,
   isCompleted,
   canUndo,
   canRedo,
   lastHint,
   stats,
+  validateResult,
   onUndo,
   onRedo,
   onHint,
   onNewGame,
   onDifficultyChange,
   onShare,
+  onSwitchMode,
+  onValidateCreate,
+  onStartFromCreate,
+  onClearCreateBoard,
 }: GameToolbarProps) {
   const [showStats, setShowStats] = useState(false);
   const [shareToast, setShareToast] = useState(false);
@@ -58,26 +80,64 @@ export function GameToolbar({
 
   return (
     <div className="flex flex-col gap-3 items-center">
-      {/* Difficulty selector */}
+      {/* Mode tabs */}
       <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
-        {DIFFICULTIES.map((d) => (
-          <button
-            key={d.value}
-            type="button"
-            onClick={() => onDifficultyChange(d.value)}
-            className={`
-              px-4 py-1.5 rounded-md text-sm font-medium transition-colors duration-100
-              ${
-                difficulty === d.value
-                  ? "bg-white text-slate-900 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700"
-              }
-            `}
-          >
-            {d.label}
-          </button>
-        ))}
+        <button
+          type="button"
+          onClick={() => onSwitchMode("play")}
+          className={`
+            flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium
+            transition-colors duration-100
+            ${
+              mode === "play"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-500 hover:text-slate-700"
+            }
+          `}
+        >
+          <Play size={14} />
+          游玩
+        </button>
+        <button
+          type="button"
+          onClick={() => onSwitchMode("create")}
+          className={`
+            flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium
+            transition-colors duration-100
+            ${
+              mode === "create"
+                ? "bg-white text-slate-900 shadow-sm"
+                : "text-slate-500 hover:text-slate-700"
+            }
+          `}
+        >
+          <Pencil size={14} />
+          出题
+        </button>
       </div>
+
+      {/* Difficulty selector — play mode only */}
+      {mode === "play" && (
+        <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+          {DIFFICULTIES.map((d) => (
+            <button
+              key={d.value}
+              type="button"
+              onClick={() => onDifficultyChange(d.value)}
+              className={`
+                px-4 py-1.5 rounded-md text-sm font-medium transition-colors duration-100
+                ${
+                  difficulty === d.value
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
+                }
+              `}
+            >
+              {d.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Action buttons */}
       <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
@@ -93,17 +153,35 @@ export function GameToolbar({
           label="重做"
           icon={<Redo2 size={18} />}
         />
-        <ToolButton
-          onClick={onHint}
-          disabled={isCompleted}
-          label="提示"
-          icon={<Lightbulb size={18} />}
-        />
-        <ToolButton
-          onClick={onNewGame}
-          label="新游戏"
-          icon={<RefreshCw size={18} />}
-        />
+        {mode === "play" && (
+          <>
+            <ToolButton
+              onClick={onHint}
+              disabled={isCompleted}
+              label="提示"
+              icon={<Lightbulb size={18} />}
+            />
+            <ToolButton
+              onClick={onNewGame}
+              label="新游戏"
+              icon={<RefreshCw size={18} />}
+            />
+          </>
+        )}
+        {mode === "create" && (
+          <>
+            <ToolButton
+              onClick={onValidateCreate}
+              label="验证"
+              icon={<CircleCheck size={18} />}
+            />
+            <ToolButton
+              onClick={onClearCreateBoard}
+              label="清空"
+              icon={<Eraser size={18} />}
+            />
+          </>
+        )}
         <ToolButton
           onClick={() => setShowStats((s) => !s)}
           label="统计"
@@ -124,8 +202,38 @@ export function GameToolbar({
         </div>
       )}
 
-      {/* Hint message */}
-      {lastHint && (
+      {/* Validation result — create mode */}
+      {mode === "create" && validateResult && (
+        <div
+          className={`flex flex-col items-center gap-2 text-sm rounded-lg px-4 py-3 border ${
+            validateResult.solvable
+              ? "text-green-700 bg-green-50 border-green-200"
+              : "text-red-700 bg-red-50 border-red-200"
+          }`}
+        >
+          {validateResult.solvable ? (
+            <>
+              <span className="flex items-center gap-1">
+                <CheckCircle2 size={14} />
+                题目可解！
+              </span>
+              <button
+                type="button"
+                onClick={onStartFromCreate}
+                className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-md text-xs font-medium hover:bg-green-700 transition-colors"
+              >
+                <Play size={14} />
+                开始游戏
+              </button>
+            </>
+          ) : (
+            <span>此题无解，请修改后重试</span>
+          )}
+        </div>
+      )}
+
+      {/* Hint message — play mode */}
+      {mode === "play" && lastHint && (
         <div className="flex items-center gap-1.5 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 max-w-xs text-center">
           <HintIcon size={14} className="shrink-0" />
           <span className="font-medium">
@@ -158,8 +266,8 @@ export function GameToolbar({
         </div>
       )}
 
-      {/* Completion message */}
-      {isCompleted && (
+      {/* Completion message — play mode */}
+      {mode === "play" && isCompleted && (
         <div className="flex items-center gap-2 text-lg font-bold text-green-600 bg-green-50 border border-green-200 rounded-lg px-5 py-3">
           <PartyPopper size={20} />
           恭喜完成！

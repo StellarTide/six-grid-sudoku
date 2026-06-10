@@ -7,6 +7,7 @@ import type { Hint } from "./engine/types";
 
 function App() {
   const {
+    mode,
     board,
     puzzle,
     selectedCell,
@@ -16,6 +17,7 @@ function App() {
     canUndo,
     canRedo,
     stats,
+    validateResult,
     selectCell,
     fillNumber,
     eraseNumber,
@@ -24,6 +26,10 @@ function App() {
     getHint,
     newGame,
     sharePuzzle,
+    switchMode,
+    validateCreate,
+    startFromCreate,
+    clearCreateBoard,
   } = useSudoku();
 
   const [lastHint, setLastHint] = useState<Hint | null>(null);
@@ -126,18 +132,24 @@ function App() {
 
       <div className="flex flex-col gap-3 sm:gap-5 w-full max-w-[400px]">
         <GameToolbar
+          mode={mode}
           difficulty={difficulty}
           isCompleted={isCompleted}
           canUndo={canUndo}
           canRedo={canRedo}
           lastHint={lastHint}
           stats={stats}
+          validateResult={validateResult}
           onUndo={handleUndo}
           onRedo={handleRedo}
           onHint={handleHint}
           onNewGame={handleNewGame}
           onDifficultyChange={handleDifficultyChange}
           onShare={handleShare}
+          onSwitchMode={switchMode}
+          onValidateCreate={validateCreate}
+          onStartFromCreate={startFromCreate}
+          onClearCreateBoard={clearCreateBoard}
         />
 
         <SudokuBoard
@@ -148,7 +160,12 @@ function App() {
           onCellClick={selectCell}
         />
 
-        <NumberPad board={board} onFill={fillNumber} onErase={eraseNumber} />
+        <NumberPad
+          mode={mode}
+          board={board}
+          onFill={fillNumber}
+          onErase={eraseNumber}
+        />
       </div>
 
       <p className="mt-6 text-xs text-slate-400 text-center hidden sm:block">

@@ -1,13 +1,14 @@
 import { X } from "lucide-react";
-import type { Board } from "../engine/types";
+import type { Board, GameMode } from "../engine/types";
 
 interface NumberPadProps {
+  mode: GameMode;
   board: Board;
   onFill: (num: number) => void;
   onErase: () => void;
 }
 
-export function NumberPad({ board, onFill, onErase }: NumberPadProps) {
+export function NumberPad({ mode, board, onFill, onErase }: NumberPadProps) {
   const digitCounts = new Array(7).fill(0);
   for (const row of board) {
     for (const cell of row) {
@@ -21,7 +22,7 @@ export function NumberPad({ board, onFill, onErase }: NumberPadProps) {
     <div className="flex items-center justify-center gap-1.5 sm:gap-2.5">
       {[1, 2, 3, 4, 5, 6].map((num) => {
         const remaining = 6 - digitCounts[num];
-        const isComplete = remaining === 0;
+        const isComplete = mode === "play" && remaining === 0;
         return (
           <button
             key={num}
@@ -40,7 +41,7 @@ export function NumberPad({ board, onFill, onErase }: NumberPadProps) {
             `}
           >
             <span>{num}</span>
-            {!isComplete && (
+            {mode === "play" && !isComplete && (
               <span className="text-[9px] sm:text-[10px] font-normal opacity-70">
                 {remaining}
               </span>
