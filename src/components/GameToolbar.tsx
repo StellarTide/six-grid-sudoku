@@ -8,13 +8,10 @@ import {
   Link2,
   CheckCircle2,
   PartyPopper,
-  Pencil,
   Play,
   Eraser,
   CircleCheck,
   PenLine,
-  Sun,
-  Moon,
   X,
   Lightbulb as HintIcon,
 } from "lucide-react";
@@ -45,13 +42,10 @@ interface GameToolbarProps {
   onNewGame: () => void;
   onDifficultyChange: (d: Difficulty) => void;
   onShare: () => void;
-  onSwitchMode: (m: GameMode) => void;
   onValidateCreate: () => void;
   onStartFromCreate: () => void;
   onClearCreateBoard: () => void;
   onToggleNotesMode: () => void;
-  theme: "light" | "dark";
-  onToggleTheme: () => void;
 }
 
 const DIFFICULTIES: { value: Difficulty; label: string }[] = [
@@ -78,26 +72,14 @@ export function GameToolbar({
   onNewGame,
   onDifficultyChange,
   onShare,
-  onSwitchMode,
   onValidateCreate,
   onStartFromCreate,
   onClearCreateBoard,
   onToggleNotesMode,
-  theme,
-  onToggleTheme,
 }: GameToolbarProps) {
   const [showStats, setShowStats] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
-  const [shareToast, setShareToast] = useState(false);
   const [hintToast, setHintToast] = useState<Hint | null>(null);
-
-  // Completion modal — not dismissable, user must click "再来一局"
-
-  const handleShare = () => {
-    onShare();
-    setShareToast(true);
-    setTimeout(() => setShareToast(false), 2000);
-  };
 
   const handleHint = () => {
     const result = onHint();
@@ -116,42 +98,6 @@ export function GameToolbar({
 
   return (
     <div className="flex flex-col gap-3 items-center">
-      {/* Mode tabs */}
-      <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
-        <button
-          type="button"
-          onClick={() => onSwitchMode("play")}
-          className={`
-            flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium
-            transition-colors duration-100
-            ${
-              mode === "play"
-                ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-            }
-          `}
-        >
-          <Play size={14} />
-          游玩
-        </button>
-        <button
-          type="button"
-          onClick={() => onSwitchMode("create")}
-          className={`
-            flex items-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium
-            transition-colors duration-100
-            ${
-              mode === "create"
-                ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
-                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-            }
-          `}
-        >
-          <Pencil size={14} />
-          出题
-        </button>
-      </div>
-
       {/* Difficulty selector — play mode only */}
       {mode === "play" && (
         <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
@@ -225,31 +171,13 @@ export function GameToolbar({
           </>
         )}
         <ToolButton
-          onClick={onToggleTheme}
-          label={theme === "dark" ? "亮色" : "暗色"}
-          icon={theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-        />
-        <ToolButton
           onClick={() => setShowStats(true)}
           label="统计"
           icon={<BarChart3 size={18} />}
         />
-        <ToolButton
-          onClick={handleShare}
-          label="分享"
-          icon={<Link2 size={18} />}
-        />
       </div>
 
       {/* === TOASTS (fixed top, no layout impact) === */}
-
-      {/* Share toast */}
-      {shareToast && (
-        <Toast>
-          <CheckCircle2 size={14} />
-          链接已复制到剪贴板
-        </Toast>
-      )}
 
       {/* Hint toast */}
       {hintToast && (
@@ -393,10 +321,7 @@ export function GameToolbar({
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  onShare();
-                  setShowStats(false);
-                }}
+                onClick={onShare}
                 className="flex items-center justify-center gap-1.5 px-4 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors"
               >
                 <Link2 size={16} />

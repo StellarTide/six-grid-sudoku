@@ -1,4 +1,5 @@
 import { useEffect, useCallback } from "react";
+import { Play, Pencil, Sun, Moon, Link2 } from "lucide-react";
 import { useSudoku } from "./hooks/useSudoku";
 import { useTheme } from "./hooks/useTheme";
 import { SudokuBoard } from "./components/SudokuBoard";
@@ -59,7 +60,6 @@ function App() {
     navigator.clipboard.writeText(url).catch(() => {});
   }, [sharePuzzle]);
 
-  // Keyboard support
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key >= "1" && e.key <= "6") {
@@ -117,12 +117,67 @@ function App() {
   }, [handleKeyDown]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 flex flex-col items-center px-3 py-4 sm:px-4 sm:py-8">
-      <h1 className="text-xl sm:text-3xl font-bold text-slate-800 dark:text-slate-100 mb-4 sm:mb-6">
-        六宫格数独
-      </h1>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 flex flex-col items-center px-3 py-3 sm:px-4 sm:py-6">
+      {/* === Header === */}
+      <div className="w-full max-w-[400px] flex items-center justify-between mb-3 sm:mb-4">
+        <h1 className="text-lg sm:text-xl font-bold text-slate-800 dark:text-slate-100">
+          六宫格数独
+        </h1>
 
-      <div className="flex flex-col gap-3 sm:gap-5 w-full max-w-[400px]">
+        {/* Mode tabs + compact icons */}
+        <div className="flex items-center gap-1.5">
+          {/* Mode switch */}
+          <div className="flex gap-0.5 bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5">
+            <button
+              type="button"
+              onClick={() => switchMode("play")}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                mode === "play"
+                  ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
+                  : "text-slate-500 dark:text-slate-400"
+              }`}
+            >
+              <Play size={12} />
+              游玩
+            </button>
+            <button
+              type="button"
+              onClick={() => switchMode("create")}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                mode === "create"
+                  ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
+                  : "text-slate-500 dark:text-slate-400"
+              }`}
+            >
+              <Pencil size={12} />
+              出题
+            </button>
+          </div>
+
+          {/* Theme toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title={theme === "dark" ? "亮色模式" : "暗色模式"}
+          >
+            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+
+          {/* Share */}
+          <button
+            type="button"
+            onClick={handleShare}
+            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            title="分享"
+          >
+            <Link2 size={16} />
+          </button>
+        </div>
+      </div>
+
+      {/* === Main content === */}
+      <div className="flex flex-col gap-3 sm:gap-4 w-full max-w-[400px]">
         <GameToolbar
           mode={mode}
           difficulty={difficulty}
@@ -141,13 +196,10 @@ function App() {
           onNewGame={handleNewGame}
           onDifficultyChange={handleDifficultyChange}
           onShare={handleShare}
-          onSwitchMode={switchMode}
           onValidateCreate={validateCreate}
           onStartFromCreate={startFromCreate}
           onClearCreateBoard={clearCreateBoard}
           onToggleNotesMode={toggleNotesMode}
-          theme={theme}
-          onToggleTheme={toggleTheme}
         />
 
         <SudokuBoard
@@ -170,7 +222,7 @@ function App() {
         />
       </div>
 
-      <p className="mt-6 text-xs text-slate-400 dark:text-slate-500 text-center hidden sm:block">
+      <p className="mt-4 text-xs text-slate-400 dark:text-slate-500 text-center hidden sm:block">
         键盘：方向键移动 · 数字键填入 · Backspace 擦除 · Ctrl+Z 撤销
       </p>
     </div>
