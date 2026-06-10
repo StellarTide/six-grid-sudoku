@@ -87,7 +87,7 @@ export function GameToolbar({
     const result = onHint();
     if (result) {
       setHintToast(result);
-      setTimeout(() => setHintToast(null), 3000);
+      setTimeout(() => setHintToast(null), 5000);
     }
   };
 
@@ -383,7 +383,7 @@ function Toast({
 
   return (
     <div
-      className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 text-sm border rounded-lg px-4 py-2 shadow-lg max-w-[calc(100vw-2rem)] ${colors}`}
+      className={`fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1.5 text-sm border rounded-lg px-4 py-2 shadow-lg max-w-[calc(100vw-2rem)] ${colors}`}
     >
       {children}
     </div>
