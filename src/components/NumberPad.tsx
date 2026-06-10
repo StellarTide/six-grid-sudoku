@@ -51,6 +51,7 @@ export function NumberPad({ board, onFill, onErase }: NumberPadProps) {
       <button
         type="button"
         onClick={onErase}
+        data-testid="erase-button"
         className="w-[44px] h-[44px] sm:w-14 sm:h-14 rounded-xl text-xl sm:text-2xl
           bg-slate-100 text-slate-500 hover:bg-slate-200 active:bg-slate-300
           flex items-center justify-center transition-colors duration-100

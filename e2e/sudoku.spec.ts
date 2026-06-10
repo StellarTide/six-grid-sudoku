@@ -20,10 +20,9 @@ function numButton(page: Page, n: number) {
     .first();
 }
 
-/** Get the erase (✕) button on the number pad */
+/** Get the erase button on the number pad */
 function eraseButton(page: Page) {
-  // The erase button is the last button in the number pad area
-  return page.locator(".flex.items-center.justify-center.gap-2 > button").last();
+  return page.getByTestId("erase-button");
 }
 
 /** Get a toolbar button by its label text */
@@ -327,23 +326,16 @@ test.describe("六宫格数独", () => {
       }
     }
 
-    // 找同行已有的数字作为冲突值
-    const rowValues = new Set(board[emptyR].filter((v) => v !== 0));
-    if (rowValues.size > 0) {
-      const wrongNum = [...rowValues][0];
-      await cell(page, emptyR, emptyC).click();
-      await numButton(page, wrongNum).click();
+    // 找到同行已有的数字作为冲突值（保证填入的一定是错误值）
+    const rowValues = board[emptyR].filter((v) => v !== 0);
+    expect(rowValues.length).toBeGreaterThan(0);
+    const wrongNum = rowValues[0];
 
-      // 点击其他格子取消选中，让错误样式可见（选中时 bg-blue-100 会覆盖）
-      // 点一个不在同位置的格子
-      const otherR = emptyR === 0 ? 5 : 0;
-      const otherC = emptyC === 0 ? 5 : 0;
-      await cell(page, otherR, otherC).click();
+    await cell(page, emptyR, emptyC).click();
+    await numButton(page, wrongNum).click();
 
-      // 错误格子应有红色背景和文字
-      await expect(cell(page, emptyR, emptyC)).toHaveClass(/bg-red-50/);
-      await expect(cell(page, emptyR, emptyC)).toHaveClass(/text-red-500/);
-    }
+    // 错误格子应有红色文字（选中状态 bg-blue-100 覆盖 bg-red-50）
+    await expect(cell(page, emptyR, emptyC)).toHaveClass(/text-red-500/);
   });
 
   // ── 7. 难度切换 ─────────────────────────────────────────────────────────
