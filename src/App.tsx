@@ -125,6 +125,8 @@ function App() {
           stats={stats}
           validateResult={validateResult}
           showCompletionModal={showCompletionModal}
+          board={board}
+          puzzle={puzzle}
           onUndo={undo}
           onRedo={redo}
           onHint={handleHint}

@@ -16,6 +16,7 @@ import {
   Lightbulb as HintIcon,
 } from "lucide-react";
 import type {
+  Board,
   Difficulty,
   Hint,
   GameStats,
@@ -32,6 +33,8 @@ interface GameToolbarProps {
   stats: GameStats;
   showCompletionModal: boolean;
   validateResult: ValidateResult | null;
+  board: Board;
+  puzzle: Board;
   onUndo: () => void;
   onRedo: () => void;
   onHint: () => Hint | null;
@@ -59,6 +62,8 @@ export function GameToolbar({
   stats,
   showCompletionModal,
   validateResult,
+  board,
+  puzzle,
   onUndo,
   onRedo,
   onHint,
@@ -322,20 +327,36 @@ export function GameToolbar({
               难度
             </p>
 
-            {/* Result summary */}
-            <div className="bg-slate-50 rounded-xl p-3 mb-4 text-center">
-              <p className="text-xs text-slate-400 mb-1">终盘结果</p>
-              <p className="text-sm text-slate-600">
-                你成功解出了一个{" "}
-                <span className="font-semibold text-slate-800">
-                  {difficulty === "easy"
-                    ? "简单"
-                    : difficulty === "medium"
-                      ? "中等"
-                      : "困难"}
-                </span>{" "}
-                六宫格数独！
-              </p>
+            {/* Mini completed board */}
+            <div className="mb-4">
+              <p className="text-xs text-slate-400 mb-2">终盘结果</p>
+              <div className="inline-grid grid-cols-6 border-2 border-slate-700 rounded-lg overflow-hidden">
+                {board.map((row, r) =>
+                  row.map((value, c) => {
+                    const isInitial = puzzle[r][c] !== 0;
+                    const thickRight = c === 2 || c === 5;
+                    const thickBottom = r === 1 || r === 3;
+                    return (
+                      <div
+                        key={`${r}-${c}`}
+                        className={`
+                          w-7 h-7 flex items-center justify-center text-xs font-medium
+                          border border-slate-300 bg-white
+                          ${r === 0 ? "border-t-2 border-t-slate-700" : ""}
+                          ${r === 5 ? "border-b-2 border-b-slate-700" : ""}
+                          ${c === 0 ? "border-l-2 border-l-slate-700" : ""}
+                          ${c === 5 ? "border-r-2 border-r-slate-700" : ""}
+                          ${thickRight ? "border-r-2 border-r-slate-700" : ""}
+                          ${thickBottom ? "border-b-2 border-b-slate-700" : ""}
+                          ${isInitial ? "text-slate-900 font-semibold" : "text-blue-600 font-bold"}
+                        `}
+                      >
+                        {value}
+                      </div>
+                    );
+                  }),
+                )}
+              </div>
             </div>
 
             {/* Action buttons */}
