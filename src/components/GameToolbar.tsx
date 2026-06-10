@@ -301,23 +301,63 @@ export function GameToolbar({
         </Modal>
       )}
 
-      {/* Completion modal — play mode, non-dismissable */}
+      {/* Completion modal — play mode */}
       {showCompletionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl p-5 mx-4 w-full max-w-[280px] text-center">
-            <div className="flex flex-col items-center gap-4">
-              <div className="flex items-center gap-2 text-green-600">
-                <PartyPopper size={24} />
-                <span className="text-xl font-bold">恭喜完成！</span>
-                <PartyPopper size={24} />
-              </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-2xl shadow-xl p-5 mx-4 w-full max-w-[300px] text-center">
+            {/* Celebration header */}
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <PartyPopper size={28} className="text-amber-500" />
+              <PartyPopper size={28} className="text-amber-500" />
+            </div>
+            <h2 className="text-xl font-bold text-green-600 mb-1">
+              恭喜完成！
+            </h2>
+            <p className="text-sm text-slate-500 mb-4">
+              {difficulty === "easy"
+                ? "简单"
+                : difficulty === "medium"
+                  ? "中等"
+                  : "困难"}
+              难度
+            </p>
+
+            {/* Result summary */}
+            <div className="bg-slate-50 rounded-xl p-3 mb-4 text-center">
+              <p className="text-xs text-slate-400 mb-1">终盘结果</p>
+              <p className="text-sm text-slate-600">
+                你成功解出了一个{" "}
+                <span className="font-semibold text-slate-800">
+                  {difficulty === "easy"
+                    ? "简单"
+                    : difficulty === "medium"
+                      ? "中等"
+                      : "困难"}
+                </span>{" "}
+                六宫格数独！
+              </p>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex flex-col gap-2">
               <button
                 type="button"
                 onClick={handleStartNewGame}
-                className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                className="flex items-center justify-center gap-1.5 px-4 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
               >
                 <RefreshCw size={16} />
                 再来一局
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onShare();
+                  setShowStats(false);
+                }}
+                className="flex items-center justify-center gap-1.5 px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
+              >
+                <Link2 size={16} />
+                分享战绩
               </button>
             </div>
           </div>
