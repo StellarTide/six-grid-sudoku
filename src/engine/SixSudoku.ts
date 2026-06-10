@@ -21,10 +21,9 @@ export class SixSudoku {
   generateFullBoard(): Board {
     const pattern = (r: number, c: number): number => {
       return (
-        this.boxCols * (r % this.boxRows) +
-        Math.floor(r / this.boxRows) +
-        c
-      ) % this.size;
+        (this.boxCols * (r % this.boxRows) + Math.floor(r / this.boxRows) + c) %
+        this.size
+      );
     };
 
     const nums = this.shuffle([...this.digits]);
@@ -141,12 +140,7 @@ export class SixSudoku {
     return this.digits.filter((n) => !used.has(n));
   }
 
-  checkMove(
-    board: Board,
-    row: number,
-    col: number,
-    value: number,
-  ): boolean {
+  checkMove(board: Board, row: number, col: number, value: number): boolean {
     if (board[row][col] !== 0) {
       return false;
     }
@@ -155,19 +149,41 @@ export class SixSudoku {
   }
 
   getHint(board: Board): Hint | null {
-    const naked = this.nakedSingle(board);
+    const allHints = this.allHints(board);
 
-    if (naked !== null) {
-      return naked;
+    if (allHints.length === 0) {
+      return null;
     }
 
-    const hidden = this.hiddenSingle(board);
+    return allHints[Math.floor(Math.random() * allHints.length)];
+  }
 
-    if (hidden !== null) {
-      return hidden;
+  allHints(board: Board): Hint[] {
+    const hints: Hint[] = [];
+
+    for (let r = 0; r < this.size; r++) {
+      for (let c = 0; c < this.size; c++) {
+        if (board[r][c] !== 0) {
+          continue;
+        }
+
+        const cand = this.candidates(board, r, c);
+
+        if (cand.length === 1) {
+          hints.push({
+            strategy: "naked_single",
+            row: r,
+            col: c,
+            value: cand[0],
+            reason: "Only candidate",
+          });
+        }
+      }
     }
 
-    return null;
+    hints.push(...this.hiddenSingleAll(board));
+
+    return hints;
   }
 
   isCompleted(board: Board): boolean {
@@ -280,61 +296,15 @@ export class SixSudoku {
     return best;
   }
 
-  private nakedSingle(board: Board): Hint | null {
-    for (let r = 0; r < this.size; r++) {
-      for (let c = 0; c < this.size; c++) {
-        if (board[r][c] !== 0) {
-          continue;
-        }
+  private hiddenSingleAll(board: Board): Hint[] {
+    const hints: Hint[] = [];
 
-        const cand = this.candidates(board, r, c);
-
-        if (cand.length === 1) {
-          return {
-            strategy: "naked_single",
-            row: r,
-            col: c,
-            value: cand[0],
-            reason: "Only candidate",
-          };
-        }
-      }
-    }
-
-    return null;
-  }
-
-  private hiddenSingle(board: Board): Hint | null {
-    const rowHint = this.hiddenSingleInRows(board);
-
-    if (rowHint !== null) {
-      return rowHint;
-    }
-
-    const colHint = this.hiddenSingleInColumns(board);
-
-    if (colHint !== null) {
-      return colHint;
-    }
-
-    const boxHint = this.hiddenSingleInBoxes(board);
-
-    if (boxHint !== null) {
-      return boxHint;
-    }
-
-    return null;
-  }
-
-  private hiddenSingleInRows(board: Board): Hint | null {
+    // Rows
     for (let r = 0; r < this.size; r++) {
       const positions = new Map<number, Array<[number, number]>>();
 
       for (let c = 0; c < this.size; c++) {
-        if (board[r][c] !== 0) {
-          continue;
-        }
-
+        if (board[r][c] !== 0) continue;
         for (const v of this.candidates(board, r, c)) {
           const list = positions.get(v) ?? [];
           list.push([r, c]);
@@ -344,31 +314,23 @@ export class SixSudoku {
 
       for (const [value, cells] of positions) {
         if (cells.length === 1) {
-          const [row, col] = cells[0];
-
-          return {
+          hints.push({
             strategy: "hidden_single",
-            row,
-            col,
+            row: cells[0][0],
+            col: cells[0][1],
             value,
             reason: "Only place in row",
-          };
+          });
         }
       }
     }
 
-    return null;
-  }
-
-  private hiddenSingleInColumns(board: Board): Hint | null {
+    // Columns
     for (let c = 0; c < this.size; c++) {
       const positions = new Map<number, Array<[number, number]>>();
 
       for (let r = 0; r < this.size; r++) {
-        if (board[r][c] !== 0) {
-          continue;
-        }
-
+        if (board[r][c] !== 0) continue;
         for (const v of this.candidates(board, r, c)) {
           const list = positions.get(v) ?? [];
           list.push([r, c]);
@@ -378,33 +340,25 @@ export class SixSudoku {
 
       for (const [value, cells] of positions) {
         if (cells.length === 1) {
-          const [row, col] = cells[0];
-
-          return {
+          hints.push({
             strategy: "hidden_single",
-            row,
-            col,
+            row: cells[0][0],
+            col: cells[0][1],
             value,
             reason: "Only place in column",
-          };
+          });
         }
       }
     }
 
-    return null;
-  }
-
-  private hiddenSingleInBoxes(board: Board): Hint | null {
+    // Boxes
     for (let br = 0; br < this.size; br += this.boxRows) {
       for (let bc = 0; bc < this.size; bc += this.boxCols) {
         const positions = new Map<number, Array<[number, number]>>();
 
         for (let r = br; r < br + this.boxRows; r++) {
           for (let c = bc; c < bc + this.boxCols; c++) {
-            if (board[r][c] !== 0) {
-              continue;
-            }
-
+            if (board[r][c] !== 0) continue;
             for (const v of this.candidates(board, r, c)) {
               const list = positions.get(v) ?? [];
               list.push([r, c]);
@@ -415,21 +369,19 @@ export class SixSudoku {
 
         for (const [value, cells] of positions) {
           if (cells.length === 1) {
-            const [row, col] = cells[0];
-
-            return {
+            hints.push({
               strategy: "hidden_single",
-              row,
-              col,
+              row: cells[0][0],
+              col: cells[0][1],
               value,
               reason: "Only place in box",
-            };
+            });
           }
         }
       }
     }
 
-    return null;
+    return hints;
   }
 
   private isValidCompletedBoard(board: Board): boolean {

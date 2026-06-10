@@ -21,13 +21,11 @@ export function SudokuCell({
   col,
   onClick,
 }: SudokuCellProps) {
-  // Determine border thickness for box separation (2x3 grid)
-  const borderRight = col === 2 || col === 5 ? "border-r-[3px]" : "";
-  const borderBottom = row === 1 || row === 3 ? "border-b-[3px]" : "";
-  const borderLeft = col === 0 ? "border-l-[3px]" : "";
-  const borderTop = row === 0 ? "border-t-[3px]" : "";
-  const borderRightLast = col === 5 ? "border-r-[3px]" : "";
-  const borderBottomLast = row === 5 ? "border-b-[3px]" : "";
+  // Border thickness for 2×3 box separation
+  const thickRight = col === 2 || col === 5;
+  const thickBottom = row === 1 || row === 3;
+  const thickLeft = col === 0;
+  const thickTop = row === 0;
 
   let bgClass = "bg-white";
   if (isSelected) {
@@ -40,24 +38,23 @@ export function SudokuCell({
     bgClass = "bg-slate-50";
   }
 
-  let textClass = "text-slate-800";
-  if (isError) {
-    textClass = "text-red-500 font-bold";
-  } else if (isInitial) {
-    textClass = "text-slate-900 font-semibold";
-  } else {
-    textClass = "text-blue-600 font-medium";
-  }
+  const textClass = isError
+    ? "text-red-500 font-bold"
+    : isInitial
+      ? "text-slate-900 font-semibold"
+      : "text-blue-600 font-medium";
 
   return (
     <button
       type="button"
       className={`
         aspect-square flex items-center justify-center
-        text-xl sm:text-2xl select-none cursor-pointer
+        text-lg sm:text-2xl select-none cursor-pointer
         border border-slate-300
-        ${borderTop} ${borderBottom} ${borderBottomLast}
-        ${borderLeft} ${borderRight} ${borderRightLast}
+        ${thickTop ? "border-t-[3px]" : ""}
+        ${thickBottom ? "border-b-[3px]" : ""}
+        ${thickLeft ? "border-l-[3px]" : ""}
+        ${thickRight ? "border-r-[3px]" : ""}
         ${bgClass} ${textClass}
         transition-colors duration-100
         hover:bg-blue-50 active:bg-blue-100

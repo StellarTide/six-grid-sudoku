@@ -15,6 +15,7 @@ function App() {
     errorCells,
     canUndo,
     canRedo,
+    stats,
     selectCell,
     fillNumber,
     eraseNumber,
@@ -22,6 +23,7 @@ function App() {
     redo,
     getHint,
     newGame,
+    sharePuzzle,
   } = useSudoku();
 
   const [lastHint, setLastHint] = useState<Hint | null>(null);
@@ -53,6 +55,11 @@ function App() {
     },
     [newGame],
   );
+
+  const handleShare = useCallback(() => {
+    const url = sharePuzzle();
+    navigator.clipboard.writeText(url).catch(() => {});
+  }, [sharePuzzle]);
 
   // Keyboard support
   const handleKeyDown = useCallback(
@@ -103,14 +110,7 @@ function App() {
         return;
       }
     },
-    [
-      selectedCell,
-      fillNumber,
-      eraseNumber,
-      selectCell,
-      handleUndo,
-      handleRedo,
-    ],
+    [selectedCell, fillNumber, eraseNumber, selectCell, handleUndo, handleRedo],
   );
 
   useEffect(() => {
@@ -119,23 +119,25 @@ function App() {
   }, [handleKeyDown]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 flex flex-col items-center px-4 py-6 sm:py-10">
-      <h1 className="text-2xl sm:text-3xl font-bold text-slate-800 mb-6">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 flex flex-col items-center px-3 py-4 sm:px-4 sm:py-8">
+      <h1 className="text-xl sm:text-3xl font-bold text-slate-800 mb-4 sm:mb-6">
         六宫格数独
       </h1>
 
-      <div className="flex flex-col gap-5 w-full max-w-[400px]">
+      <div className="flex flex-col gap-3 sm:gap-5 w-full max-w-[400px]">
         <GameToolbar
           difficulty={difficulty}
           isCompleted={isCompleted}
           canUndo={canUndo}
           canRedo={canRedo}
           lastHint={lastHint}
+          stats={stats}
           onUndo={handleUndo}
           onRedo={handleRedo}
           onHint={handleHint}
           onNewGame={handleNewGame}
           onDifficultyChange={handleDifficultyChange}
+          onShare={handleShare}
         />
 
         <SudokuBoard
@@ -146,14 +148,10 @@ function App() {
           onCellClick={selectCell}
         />
 
-        <NumberPad
-          board={board}
-          onFill={fillNumber}
-          onErase={eraseNumber}
-        />
+        <NumberPad board={board} onFill={fillNumber} onErase={eraseNumber} />
       </div>
 
-      <p className="mt-8 text-xs text-slate-400 text-center">
+      <p className="mt-6 text-xs text-slate-400 text-center hidden sm:block">
         键盘：方向键移动 · 数字键填入 · Backspace 擦除 · Ctrl+Z 撤销
       </p>
     </div>

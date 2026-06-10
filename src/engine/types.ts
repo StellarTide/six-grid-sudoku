@@ -14,3 +14,23 @@ export interface GenerateResult {
   puzzle: Board;
   solution: Board;
 }
+
+export interface SaveData {
+  board: Board;
+  puzzle: Board;
+  solution: Board;
+  difficulty: Difficulty;
+  undoStack: Board[];
+  redoStack: Board[];
+  isCompleted: boolean;
+}
+
+export interface GameStats {
+  totalPlayed: number;
+  totalCompleted: number;
+  easyCompleted: number;
+  mediumCompleted: number;
+  hardCompleted: number;
+  currentStreak: number;
+  bestStreak: number;
+}
