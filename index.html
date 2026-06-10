@@ -5,8 +5,35 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>六宫格数独</title>
+    <meta
+      name="description"
+      content="一个精致的 6×6 数独游戏，支持出题、笔记、提示、分享，可部署到 GitHub Pages"
+    />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="六宫格数独" />
+    <meta
+      property="og:description"
+      content="一个精致的 6×6 数独游戏，支持出题、笔记、提示、分享"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/favicon.svg" />
+
+    <!-- Theme color -->
+    <meta name="theme-color" content="#f8fafc" />
   </head>
   <body>
+    <script>
+      (function () {
+        var t = localStorage.getItem("sudoku-theme");
+        if (
+          t === "dark" ||
+          (!t && matchMedia("(prefers-color-scheme: dark)").matches)
+        ) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -54,9 +54,9 @@ export function NumberPad({
               transition-all duration-100 select-none
               ${
                 isComplete && !isNotesMode
-                  ? "bg-slate-100 text-slate-300 cursor-not-allowed"
+                  ? "bg-slate-100 dark:bg-slate-800 text-slate-300 dark:text-slate-600 cursor-not-allowed"
                   : isNotesMode
-                    ? "bg-amber-100 text-amber-700 hover:bg-amber-200 active:bg-amber-300 cursor-pointer shadow-sm border-2 border-dashed border-amber-400"
+                    ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 active:bg-amber-300 cursor-pointer shadow-sm border-2 border-dashed border-amber-400 dark:border-amber-600"
                     : "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700 cursor-pointer shadow-sm"
               }
             `}
@@ -76,7 +76,7 @@ export function NumberPad({
         onClick={onErase}
         data-testid="erase-button"
         className="w-[44px] h-[44px] sm:w-14 sm:h-14 rounded-xl text-xl sm:text-2xl
-          bg-slate-100 text-slate-500 hover:bg-slate-200 active:bg-slate-300
+          bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 active:bg-slate-300 dark:active:bg-slate-600
           flex items-center justify-center transition-colors duration-100
           select-none cursor-pointer"
       >

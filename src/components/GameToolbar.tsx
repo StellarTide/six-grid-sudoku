@@ -13,6 +13,8 @@ import {
   Eraser,
   CircleCheck,
   PenLine,
+  Sun,
+  Moon,
   X,
   Lightbulb as HintIcon,
 } from "lucide-react";
@@ -48,6 +50,8 @@ interface GameToolbarProps {
   onStartFromCreate: () => void;
   onClearCreateBoard: () => void;
   onToggleNotesMode: () => void;
+  theme: "light" | "dark";
+  onToggleTheme: () => void;
 }
 
 const DIFFICULTIES: { value: Difficulty; label: string }[] = [
@@ -79,6 +83,8 @@ export function GameToolbar({
   onStartFromCreate,
   onClearCreateBoard,
   onToggleNotesMode,
+  theme,
+  onToggleTheme,
 }: GameToolbarProps) {
   const [showStats, setShowStats] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
@@ -111,7 +117,7 @@ export function GameToolbar({
   return (
     <div className="flex flex-col gap-3 items-center">
       {/* Mode tabs */}
-      <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+      <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
         <button
           type="button"
           onClick={() => onSwitchMode("play")}
@@ -120,8 +126,8 @@ export function GameToolbar({
             transition-colors duration-100
             ${
               mode === "play"
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-500 hover:text-slate-700"
+                ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             }
           `}
         >
@@ -136,8 +142,8 @@ export function GameToolbar({
             transition-colors duration-100
             ${
               mode === "create"
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-500 hover:text-slate-700"
+                ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             }
           `}
         >
@@ -148,7 +154,7 @@ export function GameToolbar({
 
       {/* Difficulty selector — play mode only */}
       {mode === "play" && (
-        <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
+        <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
           {DIFFICULTIES.map((d) => (
             <button
               key={d.value}
@@ -158,8 +164,8 @@ export function GameToolbar({
                 px-4 py-1.5 rounded-md text-sm font-medium transition-colors duration-100
                 ${
                   difficulty === d.value
-                    ? "bg-white text-slate-900 shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                    ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
+                    : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
                 }
               `}
             >
@@ -219,6 +225,11 @@ export function GameToolbar({
           </>
         )}
         <ToolButton
+          onClick={onToggleTheme}
+          label={theme === "dark" ? "亮色" : "暗色"}
+          icon={theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+        />
+        <ToolButton
           onClick={() => setShowStats(true)}
           label="统计"
           icon={<BarChart3 size={18} />}
@@ -257,14 +268,14 @@ export function GameToolbar({
       {showStats && (
         <Modal onClose={() => setShowStats(false)}>
           <div className="flex items-center justify-between mb-4">
-            <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+            <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200">
               <BarChart3 size={14} />
               游戏统计
             </h3>
             <button
               type="button"
               onClick={() => setShowStats(false)}
-              className="text-slate-400 hover:text-slate-600 transition-colors"
+              className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
             >
               <X size={18} />
             </button>
@@ -278,7 +289,7 @@ export function GameToolbar({
             <StatItem label="困难" value={stats.hardCompleted} />
           </div>
           <div className="mt-3 text-center">
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-slate-400 dark:text-slate-500">
               最佳连胜：{stats.bestStreak}
             </span>
           </div>
@@ -320,16 +331,16 @@ export function GameToolbar({
       {/* Completion modal — play mode */}
       {showCompletionModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="bg-white rounded-2xl shadow-xl p-5 mx-4 w-full max-w-[300px] text-center">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-5 mx-4 w-full max-w-[300px] text-center">
             {/* Celebration header */}
             <div className="flex items-center justify-center gap-2 mb-1">
               <PartyPopper size={28} className="text-amber-500" />
               <PartyPopper size={28} className="text-amber-500" />
             </div>
-            <h2 className="text-xl font-bold text-green-600 mb-1">
+            <h2 className="text-xl font-bold text-green-600 dark:text-green-400 mb-1">
               恭喜完成！
             </h2>
-            <p className="text-sm text-slate-500 mb-4">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
               {difficulty === "easy"
                 ? "简单"
                 : difficulty === "medium"
@@ -340,7 +351,7 @@ export function GameToolbar({
 
             {/* Mini completed board */}
             <div className="mb-4">
-              <p className="text-xs text-slate-400 mb-2">终盘结果</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-2">终盘结果</p>
               <div className="inline-grid grid-cols-6 border-2 border-slate-700 rounded-lg overflow-hidden">
                 {board.map((row, r) =>
                   row.map((value, c) => {
@@ -352,14 +363,14 @@ export function GameToolbar({
                         key={`${r}-${c}`}
                         className={`
                           w-7 h-7 flex items-center justify-center text-xs font-medium
-                          border border-slate-300 bg-white
-                          ${r === 0 ? "border-t-2 border-t-slate-700" : ""}
-                          ${r === 5 ? "border-b-2 border-b-slate-700" : ""}
-                          ${c === 0 ? "border-l-2 border-l-slate-700" : ""}
-                          ${c === 5 ? "border-r-2 border-r-slate-700" : ""}
-                          ${thickRight ? "border-r-2 border-r-slate-700" : ""}
-                          ${thickBottom ? "border-b-2 border-b-slate-700" : ""}
-                          ${isInitial ? "text-slate-900 font-semibold" : "text-blue-600 font-bold"}
+                          border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700
+                          ${r === 0 ? "border-t-2 border-t-slate-700 dark:border-t-slate-300" : ""}
+                          ${r === 5 ? "border-b-2 border-b-slate-700 dark:border-b-slate-300" : ""}
+                          ${c === 0 ? "border-l-2 border-l-slate-700 dark:border-l-slate-300" : ""}
+                          ${c === 5 ? "border-r-2 border-r-slate-700 dark:border-r-slate-300" : ""}
+                          ${thickRight ? "border-r-2 border-r-slate-700 dark:border-r-slate-300" : ""}
+                          ${thickBottom ? "border-b-2 border-b-slate-700 dark:border-b-slate-300" : ""}
+                          ${isInitial ? "text-slate-900 dark:text-slate-200 font-semibold" : "text-blue-600 dark:text-blue-400 font-bold"}
                         `}
                       >
                         {value}
@@ -386,7 +397,7 @@ export function GameToolbar({
                   onShare();
                   setShowStats(false);
                 }}
-                className="flex items-center justify-center gap-1.5 px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
+                className="flex items-center justify-center gap-1.5 px-4 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-sm font-medium transition-colors"
               >
                 <Link2 size={16} />
                 分享战绩
@@ -401,9 +412,9 @@ export function GameToolbar({
 
 function StatItem({ label, value }: { label: string; value: number }) {
   return (
-    <div className="bg-slate-50 rounded-lg px-2 py-2">
-      <div className="text-lg font-bold text-slate-800">{value}</div>
-      <div className="text-xs text-slate-500">{label}</div>
+    <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg px-2 py-2">
+      <div className="text-lg font-bold text-slate-800 dark:text-slate-200">{value}</div>
+      <div className="text-xs text-slate-500 dark:text-slate-400">{label}</div>
     </div>
   );
 }
@@ -431,10 +442,10 @@ function ToolButton({
         transition-colors duration-100 select-none min-w-[48px] sm:min-w-[52px]
         ${
           disabled
-            ? "text-slate-300 cursor-not-allowed"
+            ? "text-slate-300 dark:text-slate-600 cursor-not-allowed"
             : active
-              ? "text-blue-600 bg-blue-50 hover:bg-blue-100 cursor-pointer"
-              : "text-slate-600 hover:bg-slate-100 active:bg-slate-200 cursor-pointer"
+              ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 cursor-pointer"
+              : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 active:bg-slate-200 dark:active:bg-slate-700 cursor-pointer"
         }
       `}
     >
@@ -454,8 +465,8 @@ function Toast({
 }) {
   const colors =
     variant === "amber"
-      ? "text-amber-700 bg-amber-50 border-amber-200"
-      : "text-green-700 bg-green-50 border-green-200";
+      ? "text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800"
+      : "text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800";
 
   return (
     <div
@@ -482,7 +493,7 @@ function Modal({
       onClick={onClose}
     >
       <div
-        className={`bg-white rounded-2xl shadow-xl p-5 mx-4 w-full max-h-[90vh] overflow-y-auto ${
+        className={`bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-5 mx-4 w-full max-h-[90vh] overflow-y-auto ${
           narrow ? "max-w-[280px] text-center" : "max-w-[320px]"
         }`}
         onClick={(e) => e.stopPropagation()}

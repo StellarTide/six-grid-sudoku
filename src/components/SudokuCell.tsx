@@ -28,22 +28,22 @@ export function SudokuCell({
   const thickLeft = col === 0;
   const thickTop = row === 0;
 
-  let bgClass = "bg-white";
+  let bgClass = "bg-white dark:bg-slate-800";
   if (isSelected) {
-    bgClass = "bg-blue-100";
+    bgClass = "bg-blue-100 dark:bg-blue-900/40";
   } else if (isError) {
-    bgClass = "bg-red-50";
+    bgClass = "bg-red-50 dark:bg-red-900/30";
   } else if (isSameNumber && value !== 0) {
-    bgClass = "bg-blue-50";
+    bgClass = "bg-blue-50 dark:bg-blue-900/20";
   } else if (isHighlighted) {
-    bgClass = "bg-slate-50";
+    bgClass = "bg-slate-50 dark:bg-slate-700/50";
   }
 
   const textClass = isError
-    ? "text-red-500 font-bold"
+    ? "text-red-500 dark:text-red-400 font-bold"
     : isInitial
-      ? "text-slate-900 font-semibold"
-      : "text-blue-600 font-medium";
+      ? "text-slate-900 dark:text-slate-100 font-semibold"
+      : "text-blue-600 dark:text-blue-400 font-medium";
 
   const hasNotes = notes.length > 0;
 
@@ -53,14 +53,14 @@ export function SudokuCell({
       className={`
         aspect-square flex items-center justify-center relative
         text-lg sm:text-2xl select-none cursor-pointer
-        border border-slate-300
+        border border-slate-300 dark:border-slate-600
         ${thickTop ? "border-t-[3px]" : ""}
         ${thickBottom ? "border-b-[3px]" : ""}
         ${thickLeft ? "border-l-[3px]" : ""}
         ${thickRight ? "border-r-[3px]" : ""}
         ${bgClass} ${textClass}
         transition-colors duration-100
-        hover:bg-blue-50 active:bg-blue-100
+        hover:bg-blue-50 dark:hover:bg-blue-900/20 active:bg-blue-100 dark:active:bg-blue-900/40
       `}
       onClick={() => onClick(row, col)}
     >
@@ -71,7 +71,7 @@ export function SudokuCell({
           {[1, 2, 3, 4, 5, 6].map((n) => (
             <span
               key={n}
-              className="flex items-center justify-center text-[9px] sm:text-[10px] font-medium text-slate-500 leading-none"
+              className="flex items-center justify-center text-[9px] sm:text-[10px] font-medium text-slate-500 dark:text-slate-400 leading-none"
             >
               {notes.includes(n) ? n : ""}
             </span>

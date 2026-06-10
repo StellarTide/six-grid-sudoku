@@ -1,12 +1,13 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Touch optimizations for mobile */
 button {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Prevent pull-to-refresh and bounce on mobile */
 html,
 body {
   overscroll-behavior: none;
