@@ -19,6 +19,7 @@ export interface SaveData {
   board: Board;
   puzzle: Board;
   solution: Board;
+  notes: Notes;
   difficulty: Difficulty;
   undoStack: Board[];
   redoStack: Board[];
@@ -26,6 +27,8 @@ export interface SaveData {
 }
 
 export type GameMode = "play" | "create";
+
+export type Notes = Record<string, number[]>;
 
 export interface ValidateResult {
   solvable: boolean;

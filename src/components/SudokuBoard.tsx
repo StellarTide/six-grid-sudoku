@@ -1,9 +1,10 @@
-import type { Board } from "../engine/types";
+import type { Board, Notes } from "../engine/types";
 import { SudokuCell } from "./SudokuCell";
 
 interface SudokuBoardProps {
   board: Board;
   puzzle: Board;
+  notes: Notes;
   selectedCell: [number, number] | null;
   errorCells: Set<string>;
   onCellClick: (row: number, col: number) => void;
@@ -12,13 +13,13 @@ interface SudokuBoardProps {
 export function SudokuBoard({
   board,
   puzzle,
+  notes,
   selectedCell,
   errorCells,
   onCellClick,
 }: SudokuBoardProps) {
   const [selRow, selCol] = selectedCell ?? [-1, -1];
 
-  // Compute box of selected cell
   const selBoxRow = Math.floor(selRow / 2) * 2;
   const selBoxCol = Math.floor(selCol / 3) * 3;
   const selectedValue = selRow >= 0 ? board[selRow][selCol] : 0;
@@ -40,6 +41,7 @@ export function SudokuBoard({
 
           const isSameNumber =
             selectedValue !== 0 && value === selectedValue && !isSelected;
+          const cellNotes = notes[`${r}-${c}`] ?? [];
 
           return (
             <SudokuCell
@@ -50,6 +52,7 @@ export function SudokuBoard({
               isHighlighted={isHighlighted}
               isSameNumber={isSameNumber}
               isError={errorCells.has(`${r}-${c}`)}
+              notes={cellNotes}
               row={r}
               col={c}
               onClick={onCellClick}

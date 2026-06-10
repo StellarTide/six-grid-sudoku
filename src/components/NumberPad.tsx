@@ -1,14 +1,25 @@
-import { X } from "lucide-react";
+import { X, PenLine } from "lucide-react";
 import type { Board, GameMode } from "../engine/types";
 
 interface NumberPadProps {
   mode: GameMode;
   board: Board;
+  isNotesMode: boolean;
   onFill: (num: number) => void;
   onErase: () => void;
+  onToggleNote: (row: number, col: number, num: number) => void;
+  selectedCell: [number, number] | null;
 }
 
-export function NumberPad({ mode, board, onFill, onErase }: NumberPadProps) {
+export function NumberPad({
+  mode,
+  board,
+  isNotesMode,
+  onFill,
+  onErase,
+  onToggleNote,
+  selectedCell,
+}: NumberPadProps) {
   const digitCounts = new Array(7).fill(0);
   for (const row of board) {
     for (const cell of row) {
@@ -17,6 +28,14 @@ export function NumberPad({ mode, board, onFill, onErase }: NumberPadProps) {
       }
     }
   }
+
+  const handleNumClick = (num: number) => {
+    if (isNotesMode && selectedCell) {
+      onToggleNote(selectedCell[0], selectedCell[1], num);
+    } else {
+      onFill(num);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center gap-1.5 sm:gap-2.5">
@@ -27,25 +46,28 @@ export function NumberPad({ mode, board, onFill, onErase }: NumberPadProps) {
           <button
             key={num}
             type="button"
-            onClick={() => onFill(num)}
-            disabled={isComplete}
+            onClick={() => handleNumClick(num)}
+            disabled={isComplete && !isNotesMode}
             className={`
               w-[44px] h-[44px] sm:w-14 sm:h-14 rounded-xl text-xl sm:text-2xl font-bold
               flex flex-col items-center justify-center
               transition-all duration-100 select-none
               ${
-                isComplete
+                isComplete && !isNotesMode
                   ? "bg-slate-100 text-slate-300 cursor-not-allowed"
-                  : "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700 cursor-pointer shadow-sm"
+                  : isNotesMode
+                    ? "bg-amber-100 text-amber-700 hover:bg-amber-200 active:bg-amber-300 cursor-pointer shadow-sm border-2 border-dashed border-amber-400"
+                    : "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700 cursor-pointer shadow-sm"
               }
             `}
           >
             <span>{num}</span>
-            {mode === "play" && !isComplete && (
+            {mode === "play" && !isComplete && !isNotesMode && (
               <span className="text-[9px] sm:text-[10px] font-normal opacity-70">
                 {remaining}
               </span>
             )}
+            {isNotesMode && <PenLine size={10} className="opacity-60" />}
           </button>
         );
       })}

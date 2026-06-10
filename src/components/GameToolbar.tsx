@@ -12,6 +12,7 @@ import {
   Play,
   Eraser,
   CircleCheck,
+  PenLine,
   X,
   Lightbulb as HintIcon,
 } from "lucide-react";
@@ -35,6 +36,7 @@ interface GameToolbarProps {
   validateResult: ValidateResult | null;
   board: Board;
   puzzle: Board;
+  isNotesMode: boolean;
   onUndo: () => void;
   onRedo: () => void;
   onHint: () => Hint | null;
@@ -45,6 +47,7 @@ interface GameToolbarProps {
   onValidateCreate: () => void;
   onStartFromCreate: () => void;
   onClearCreateBoard: () => void;
+  onToggleNotesMode: () => void;
 }
 
 const DIFFICULTIES: { value: Difficulty; label: string }[] = [
@@ -64,6 +67,7 @@ export function GameToolbar({
   validateResult,
   board,
   puzzle,
+  isNotesMode,
   onUndo,
   onRedo,
   onHint,
@@ -74,6 +78,7 @@ export function GameToolbar({
   onValidateCreate,
   onStartFromCreate,
   onClearCreateBoard,
+  onToggleNotesMode,
 }: GameToolbarProps) {
   const [showStats, setShowStats] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
@@ -185,6 +190,12 @@ export function GameToolbar({
               disabled={isCompleted}
               label="提示"
               icon={<Lightbulb size={18} />}
+            />
+            <ToolButton
+              onClick={onToggleNotesMode}
+              label="笔记"
+              icon={<PenLine size={18} />}
+              active={isNotesMode}
             />
             <ToolButton
               onClick={onNewGame}
@@ -402,11 +413,13 @@ function ToolButton({
   disabled,
   label,
   icon,
+  active,
 }: {
   onClick: () => void;
   disabled?: boolean;
   label: string;
   icon: ReactNode;
+  active?: boolean;
 }) {
   return (
     <button
@@ -419,7 +432,9 @@ function ToolButton({
         ${
           disabled
             ? "text-slate-300 cursor-not-allowed"
-            : "text-slate-600 hover:bg-slate-100 active:bg-slate-200 cursor-pointer"
+            : active
+              ? "text-blue-600 bg-blue-50 hover:bg-blue-100 cursor-pointer"
+              : "text-slate-600 hover:bg-slate-100 active:bg-slate-200 cursor-pointer"
         }
       `}
     >

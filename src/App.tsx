@@ -18,6 +18,8 @@ function App() {
     stats,
     showCompletionModal,
     validateResult,
+    notes,
+    isNotesMode,
     selectCell,
     fillNumber,
     eraseNumber,
@@ -30,6 +32,8 @@ function App() {
     validateCreate,
     startFromCreate,
     clearCreateBoard,
+    toggleNotesMode,
+    toggleNote,
   } = useSudoku();
 
   const handleHint = useCallback(() => {
@@ -127,6 +131,7 @@ function App() {
           showCompletionModal={showCompletionModal}
           board={board}
           puzzle={puzzle}
+          isNotesMode={isNotesMode}
           onUndo={undo}
           onRedo={redo}
           onHint={handleHint}
@@ -137,11 +142,13 @@ function App() {
           onValidateCreate={validateCreate}
           onStartFromCreate={startFromCreate}
           onClearCreateBoard={clearCreateBoard}
+          onToggleNotesMode={toggleNotesMode}
         />
 
         <SudokuBoard
           board={board}
           puzzle={puzzle}
+          notes={notes}
           selectedCell={selectedCell}
           errorCells={errorCells}
           onCellClick={selectCell}
@@ -150,8 +157,11 @@ function App() {
         <NumberPad
           mode={mode}
           board={board}
+          isNotesMode={isNotesMode}
           onFill={fillNumber}
           onErase={eraseNumber}
+          onToggleNote={toggleNote}
+          selectedCell={selectedCell}
         />
       </div>
 

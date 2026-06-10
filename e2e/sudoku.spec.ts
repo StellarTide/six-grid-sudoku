@@ -9,7 +9,9 @@ function boardGrid(page: Page) {
 
 /** Get a cell button by row and column (0-indexed) */
 function cell(page: Page, row: number, col: number) {
-  return boardGrid(page).locator("button").nth(row * 6 + col);
+  return boardGrid(page)
+    .locator("button")
+    .nth(row * 6 + col);
 }
 
 /** Get the number pad button for a digit */
@@ -112,8 +114,8 @@ test.describe("六宫格数独", () => {
     }
     expect(filled).toBeGreaterThan(0);
     expect(empty).toBeGreaterThan(0);
-    // 简单模式挖 10 个空格
-    expect(empty).toBe(10);
+    // 中等模式默认 16 个空格
+    expect(empty).toBe(16);
   });
 
   // ── 3. 格子选择与高亮 ───────────────────────────────────────────────────
@@ -178,10 +180,7 @@ test.describe("六宫格数独", () => {
     // 找另一个同值的格子，验证 bg-blue-50
     for (let r = 0; r < 6; r++) {
       for (let c = 0; c < 6; c++) {
-        if (
-          (r !== targetR || c !== targetC) &&
-          board[r][c] === value
-        ) {
+        if ((r !== targetR || c !== targetC) && board[r][c] === value) {
           await expect(cell(page, r, c)).toHaveClass(/bg-blue-50/);
         }
       }
@@ -249,7 +248,7 @@ test.describe("六宫格数独", () => {
 
     // 预填数字不应改变
     await expect(cell(page, filledR, filledC)).toHaveText(
-      String(originalValue)
+      String(originalValue),
     );
   });
 
@@ -306,7 +305,7 @@ test.describe("六宫格数独", () => {
 
     // 预填数字不变
     await expect(cell(page, filledR, filledC)).toHaveText(
-      String(board[filledR][filledC])
+      String(board[filledR][filledC]),
     );
   });
 
@@ -340,15 +339,15 @@ test.describe("六宫格数独", () => {
 
   // ── 7. 难度切换 ─────────────────────────────────────────────────────────
 
-  test("切换难度到中等，空格数量增加", async ({ page }) => {
+  test("切换难度到困难，空格数量增加", async ({ page }) => {
     const boardEasy = await readBoard(page);
     const emptyEasy = countEmpty(boardEasy);
-    expect(emptyEasy).toBe(10);
+    expect(emptyEasy).toBe(16); // 默认中等
 
-    await diffButton(page, "中等").click();
-    const boardMedium = await readBoard(page);
-    const emptyMedium = countEmpty(boardMedium);
-    expect(emptyMedium).toBe(16);
+    await diffButton(page, "困难").click();
+    const boardHard = await readBoard(page);
+    const emptyHard = countEmpty(boardHard);
+    expect(emptyHard).toBe(22);
   });
 
   test("切换难度到困难，空格数量最多", async ({ page }) => {
@@ -359,14 +358,14 @@ test.describe("六宫格数独", () => {
   });
 
   test("难度按钮高亮当前选中项", async ({ page }) => {
-    // 初始为"简单"
-    const easyBtn = diffButton(page, "简单");
-    await expect(easyBtn).toHaveClass(/bg-white/);
-
-    // 切换到"中等"
-    await diffButton(page, "中等").click();
+    // 初始为"中等"
     const medBtn = diffButton(page, "中等");
     await expect(medBtn).toHaveClass(/bg-white/);
+
+    // 切换到"困难"
+    await diffButton(page, "困难").click();
+    const hardBtn = diffButton(page, "困难");
+    await expect(hardBtn).toHaveClass(/bg-white/);
   });
 
   test("切换难度后生成新棋盘", async ({ page }) => {
@@ -376,7 +375,7 @@ test.describe("六宫格数独", () => {
 
     // 棋盘应该完全不同（概率极高）
     const same = boardBefore.every((row, r) =>
-      row.every((v, c) => v === boardAfter[r][c])
+      row.every((v, c) => v === boardAfter[r][c]),
     );
     expect(same).toBe(false);
   });
@@ -489,7 +488,7 @@ test.describe("六宫格数独", () => {
 
     const boardAfter = await readBoard(page);
     const same = boardBefore.every((row, r) =>
-      row.every((v, c) => v === boardAfter[r][c])
+      row.every((v, c) => v === boardAfter[r][c]),
     );
     expect(same).toBe(false);
   });
@@ -679,8 +678,8 @@ test.describe("六宫格数独", () => {
   // ── 13. 完成检测 ────────────────────────────────────────────────────────
 
   test("连续使用提示填满棋盘后显示完成消息", async ({ page }) => {
-    // 使用提示多次直到完成（最多 22 次对应困难难度，简单只需 10 次）
-    for (let i = 0; i < 12; i++) {
+    // 使用提示多次直到完成（中等默认 16 次）
+    for (let i = 0; i < 18; i++) {
       // 检查是否已完成
       const completed = page.locator("text=恭喜完成");
       if (await completed.isVisible()) break;
@@ -693,8 +692,8 @@ test.describe("六宫格数独", () => {
   });
 
   test("完成后提示按钮禁用", async ({ page }) => {
-    // 用提示快速完成
-    for (let i = 0; i < 12; i++) {
+    // 用提示快速完成（中等默认 16 次）
+    for (let i = 0; i < 18; i++) {
       const completed = page.locator("text=恭喜完成");
       if (await completed.isVisible()) break;
       await toolButton(page, "提示").click();

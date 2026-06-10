@@ -4,6 +4,7 @@ import type {
   Board,
   Difficulty,
   Hint,
+  Notes,
   SaveData,
   GameStats,
   GameMode,
@@ -107,6 +108,8 @@ export function useSudoku() {
     return saved?.isCompleted ?? false;
   });
   const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const [notes, setNotes] = useState<Notes>({});
+  const [isNotesMode, setIsNotesMode] = useState(false);
   const [historyVersion, setHistoryVersion] = useState(0);
   const [gameCounted, setGameCounted] = useState(() => {
     const saved = loadSave();
@@ -140,13 +143,14 @@ export function useSudoku() {
       board,
       puzzle,
       solution,
+      notes,
       difficulty,
       undoStack: undoStack.current,
       redoStack: redoStack.current,
       isCompleted,
     };
     saveSave(data);
-  }, [board, puzzle, solution, difficulty, isCompleted, mode]);
+  }, [board, puzzle, solution, notes, difficulty, isCompleted, mode]);
 
   // Error cells (play mode only)
   const errorCells = new Set<string>();
@@ -173,6 +177,36 @@ export function useSudoku() {
   const selectCell = useCallback((row: number, col: number) => {
     setSelectedCell([row, col]);
   }, []);
+
+  // --- Notes helpers ---
+  const clearCellNotes = useCallback((row: number, col: number) => {
+    setNotes((prev) => {
+      const key = `${row}-${col}`;
+      if (!(key in prev)) return prev;
+      const updated = { ...prev };
+      delete updated[key];
+      return updated;
+    });
+  }, []);
+
+  const removeNumFromRelatedNotes = useCallback(
+    (row: number, col: number, num: number) => {
+      setNotes((prev) => {
+        const updated = { ...prev };
+        for (let c = 0; c < 6; c++) removedNote(updated, `${row}-${c}`, num);
+        for (let r = 0; r < 6; r++) removedNote(updated, `${r}-${col}`, num);
+        const br = Math.floor(row / 2) * 2;
+        const bc = Math.floor(col / 3) * 3;
+        for (let r = br; r < br + 2; r++) {
+          for (let c = bc; c < bc + 3; c++) {
+            removedNote(updated, `${r}-${c}`, num);
+          }
+        }
+        return updated;
+      });
+    },
+    [],
+  );
 
   // --- fillNumber: differs by mode ---
   const fillNumber = useCallback(
@@ -206,6 +240,11 @@ export function useSudoku() {
       const completed = engine.isCompleted(newBoard);
       setGameState((prev) => ({ ...prev, board: newBoard }));
       setIsCompleted(completed);
+
+      // Clear notes for this cell and remove num from related cells
+      clearCellNotes(r, c);
+      removeNumFromRelatedNotes(r, c, num);
+
       if (completed) {
         setShowCompletionModal(true);
         setStats(bumpStatsCompleted(difficulty));
@@ -220,6 +259,8 @@ export function useSudoku() {
       isCompleted,
       difficulty,
       pushHistory,
+      clearCellNotes,
+      removeNumFromRelatedNotes,
     ],
   );
 
@@ -309,6 +350,9 @@ export function useSudoku() {
     setGameState((prev) => ({ ...prev, board: newBoard }));
     setSelectedCell([hint.row, hint.col]);
 
+    clearCellNotes(hint.row, hint.col);
+    removeNumFromRelatedNotes(hint.row, hint.col, hint.value);
+
     const completed = engine.isCompleted(newBoard);
     setIsCompleted(completed);
     if (completed) {
@@ -317,7 +361,15 @@ export function useSudoku() {
     }
 
     return hint;
-  }, [mode, isCompleted, board, pushHistory, difficulty]);
+  }, [
+    mode,
+    isCompleted,
+    board,
+    pushHistory,
+    difficulty,
+    clearCellNotes,
+    removeNumFromRelatedNotes,
+  ]);
 
   const newGame = useCallback(
     (diff?: Difficulty) => {
@@ -336,6 +388,8 @@ export function useSudoku() {
       setSelectedCell(null);
       setIsCompleted(false);
       setShowCompletionModal(false);
+      setNotes({});
+      setIsNotesMode(false);
       undoStack.current = [];
       redoStack.current = [];
       setHistoryVersion((v) => v + 1);
@@ -372,6 +426,8 @@ export function useSudoku() {
     setMode("play");
     setSelectedCell(null);
     setIsCompleted(false);
+    setNotes({});
+    setIsNotesMode(false);
     undoStack.current = [];
     redoStack.current = [];
     setHistoryVersion((v) => v + 1);
@@ -396,6 +452,8 @@ export function useSudoku() {
       setMode(newMode);
       setSelectedCell(null);
       setIsCompleted(false);
+      setNotes({});
+      setIsNotesMode(false);
       undoStack.current = [];
       redoStack.current = [];
       setHistoryVersion((v) => v + 1);
@@ -406,6 +464,33 @@ export function useSudoku() {
       }
     },
     [mode],
+  );
+
+  // --- Notes (public API) ---
+  const toggleNotesMode = useCallback(() => {
+    setIsNotesMode((prev) => !prev);
+  }, []);
+
+  const toggleNote = useCallback(
+    (row: number, col: number, num: number) => {
+      if (mode !== "play" || isCompleted) return;
+      if (puzzle[row][col] !== 0) return;
+      const key = `${row}-${col}`;
+      setNotes((prev) => {
+        const cur = prev[key] ?? [];
+        const next = cur.includes(num)
+          ? cur.filter((n) => n !== num)
+          : [...cur, num].sort((a, b) => a - b);
+        const updated = { ...prev };
+        if (next.length === 0) {
+          delete updated[key];
+        } else {
+          updated[key] = next;
+        }
+        return updated;
+      });
+    },
+    [mode, isCompleted, puzzle],
   );
 
   // Which board to display
@@ -427,6 +512,8 @@ export function useSudoku() {
     stats,
     validateResult,
     showCompletionModal,
+    notes,
+    isNotesMode,
     selectCell,
     fillNumber,
     eraseNumber,
@@ -439,6 +526,8 @@ export function useSudoku() {
     validateCreate,
     startFromCreate,
     clearCreateBoard,
+    toggleNotesMode,
+    toggleNote,
   };
 }
 
@@ -452,6 +541,17 @@ function createNewGame(difficulty: Difficulty): GameState {
     puzzle: puzzle.map((row) => [...row]),
     solution,
   };
+}
+
+function removedNote(notes: Notes, key: string, num: number) {
+  const cur = notes[key];
+  if (!cur) return;
+  const next = cur.filter((n) => n !== num);
+  if (next.length === 0) {
+    delete notes[key];
+  } else {
+    notes[key] = next;
+  }
 }
 
 function bumpStatsCompleted(difficulty: Difficulty) {
