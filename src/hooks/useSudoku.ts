@@ -58,7 +58,7 @@ function getPuzzleFromBoard(puzzleBoard: Board): GameState {
   const copied = puzzleBoard.map((row) => [...row]);
   const solution = engine.solve(copied);
   if (!solution) {
-    return createNewGame("easy");
+    return createNewGame("medium");
   }
   return {
     board: puzzleBoard.map((row) => [...row]),
@@ -86,12 +86,12 @@ export function useSudoku() {
         solution: saved.solution,
       };
     }
-    return createNewGame("easy");
+    return createNewGame("medium");
   });
 
   const [difficulty, setDifficulty] = useState<Difficulty>(() => {
     const saved = loadSave();
-    return saved?.difficulty ?? "easy";
+    return saved?.difficulty ?? "medium";
   });
 
   const [createBoard, setCreateBoard] = useState<Board>(() => emptyBoard());
