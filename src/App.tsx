@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from "react";
-import { Play, Pencil, Sun, Moon, Link2 } from "lucide-react";
+import { Play, Pencil, Sun, Moon, Share2 } from "lucide-react";
 import { useSudoku } from "./hooks/useSudoku";
 import { useTheme } from "./hooks/useTheme";
 import { SudokuBoard } from "./components/SudokuBoard";
@@ -171,7 +171,7 @@ function App() {
             className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
             title="分享"
           >
-            <Link2 size={16} />
+            <Share2 size={16} />
           </button>
         </div>
       </div>
