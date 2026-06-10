@@ -12,6 +12,7 @@ import {
   Play,
   Eraser,
   CircleCheck,
+  X,
   Lightbulb as HintIcon,
 } from "lucide-react";
 import type {
@@ -243,25 +244,42 @@ export function GameToolbar({
         </div>
       )}
 
-      {/* Stats panel */}
+      {/* Stats modal */}
       {showStats && (
-        <div className="w-full bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-          <h3 className="flex items-center justify-center gap-1.5 text-sm font-semibold text-slate-700 mb-3">
-            <BarChart3 size={14} />
-            游戏统计
-          </h3>
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <StatItem label="已玩" value={stats.totalPlayed} />
-            <StatItem label="完成" value={stats.totalCompleted} />
-            <StatItem label="连胜" value={stats.currentStreak} />
-            <StatItem label="简单" value={stats.easyCompleted} />
-            <StatItem label="中等" value={stats.mediumCompleted} />
-            <StatItem label="困难" value={stats.hardCompleted} />
-          </div>
-          <div className="mt-2 text-center">
-            <span className="text-xs text-slate-400">
-              最佳连胜：{stats.bestStreak}
-            </span>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={() => setShowStats(false)}
+        >
+          <div
+            className="bg-white rounded-2xl shadow-xl p-5 mx-4 w-full max-w-[300px]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-700">
+                <BarChart3 size={14} />
+                游戏统计
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowStats(false)}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <StatItem label="已玩" value={stats.totalPlayed} />
+              <StatItem label="完成" value={stats.totalCompleted} />
+              <StatItem label="连胜" value={stats.currentStreak} />
+              <StatItem label="简单" value={stats.easyCompleted} />
+              <StatItem label="中等" value={stats.mediumCompleted} />
+              <StatItem label="困难" value={stats.hardCompleted} />
+            </div>
+            <div className="mt-3 text-center">
+              <span className="text-xs text-slate-400">
+                最佳连胜：{stats.bestStreak}
+              </span>
+            </div>
           </div>
         </div>
       )}
